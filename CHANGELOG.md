@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/ExaDev/merge-when-green/compare/v1.5.0...v1.6.0) (2026-10-05)
+
+### Features
+
+- end each release with a full changelog link instead of GitHub's generated list ([5da9032](https://github.com/ExaDev/merge-when-green/commit/5da9032e2bdb267d1bd506d8d2142090931baef0))
+
 ## [1.5.0](https://github.com/ExaDev/merge-when-green/compare/v1.4.0...v1.5.0) (2026-10-05)
 
 ### Features
