@@ -7,8 +7,9 @@ branding:
 
 inputs:
   merge-token:
-    description: Token used to merge. A token other than the workflow's GITHUB_TOKEN is needed when the merge must start further workflows, which GitHub does not do for pushes made with GITHUB_TOKEN.
-    required: true
+    description: Token used to merge through the API (rebase, squash or merge). A token other than the workflow's GITHUB_TOKEN is needed when the merge must start further workflows, which GitHub does not do for pushes made with GITHUB_TOKEN. Not used for the fast-forward method.
+  ssh-key:
+    description: Private half of a write deploy key, used for the fast-forward method, which merges by pushing the pull request's head commit to its base branch over SSH. Pushes made with a deploy key start workflows. Not used for the other methods.
   read-token:
     description: Token used to read pull requests, checks and review threads.
     default: ${{ github.token }}
@@ -19,7 +20,7 @@ inputs:
     description: Name of the check run that must have succeeded on the pull request's head commit. Point it at one aggregate job that needs every other job.
     required: true
   merge-method:
-    description: rebase, squash or merge.
+    description: rebase, squash, merge (all through the API, with merge-token) or fast-forward (a push over SSH, with ssh-key; only a pull request already up to date with its base is merged).
     default: rebase
   head-sha:
     description: Commit to act on. Defaults to the head of the workflow_run or pull_request_target event.
@@ -32,6 +33,7 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.read-token }}
         MERGE_TOKEN: ${{ inputs.merge-token }}
+        SSH_KEY: ${{ inputs.ssh-key }}
         REPO: ${{ github.repository }}
         HEAD_SHA: ${{ inputs.head-sha }}
         LABEL: ${{ inputs.label }}
