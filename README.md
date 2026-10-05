@@ -1,6 +1,15 @@
 # merge-when-green
 
-Merges a pull request once a required check has passed on its head commit, for repositories where GitHub's own auto-merge and required status checks are unavailable (a private repository on the Free plan).
+Merges a pull request once a named check has passed on its head commit, without relying on GitHub's own auto-merge or branch protection.
+
+## When to use this
+
+- **A private repository on the Free plan**, where GitHub offers neither auto-merge nor required status checks. This is the case it was written for.
+- **A repository where auto-merge is switched off**, by a repository or organisation setting you can't or won't change.
+- **Merge rules kept in a workflow rather than in settings**: the merge waits for one aggregate check on the exact head commit, and for every review thread to be resolved, whichever plan the repository is on.
+- **A setup with no personal access token to hand out**: with `fast-forward` the merge is a push made with a deploy key.
+
+Where GitHub's native auto-merge with required checks is available and does what you need, use that. Nothing here stops anyone merging by hand; the action only saves waiting for the checks.
 
 A pull request is merged when all of these hold: it carries the opt-in label, it isn't a draft, it still has the commit being checked at its head, no review thread is unresolved, and the named check run succeeded on that commit. The merge is pinned to that commit with `--match-head-commit`, so a push made after the check passed is never merged unseen. Nothing stops anyone merging by hand; this only saves waiting.
 
