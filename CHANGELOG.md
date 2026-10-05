@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/ExaDev/merge-when-green/compare/v1.2.0...v1.3.0) (2026-10-05)
+
+### Features
+
+- keep a release for the moving major tag up to date ([e223cbd](https://github.com/ExaDev/merge-when-green/commit/e223cbdff2db79ec2d2786fcec94b55fe7f96c96))
+
 ## [1.2.0](https://github.com/ExaDev/merge-when-green/compare/v1.1.2...v1.2.0) (2026-10-05)
 
 ### Features
