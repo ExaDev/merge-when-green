@@ -7,9 +7,9 @@ type TypedSuccessContext = Omit<SuccessContext, "logger"> & {
 };
 
 /**
- * semantic-release plugin, referenced by path from release.config.ts. Appends GitHub's own generated release notes (the pull requests merged since the previous release, the new contributors and the compare link) to the release semantic-release just published, below the changelog entry it already holds, so a release carries both.
+ * semantic-release plugin, referenced by path from release.config.ts. Appends a "Full Changelog" link, the compare view from the previous release to this one, below the changelog entry in the release semantic-release just published. GitHub's generated "What's Changed" list is left out on purpose: the entry already lists the commits.
  *
- * Runs in the `success` step, after the release exists and before sync-major-release.mts, which copies the finished body to the major tag's release.
+ * Runs in the `success` step, after the release exists.
  */
 export function success(
   _pluginConfig: unknown,
@@ -25,16 +25,7 @@ export function success(
       stdio: ["ignore", "pipe", "inherit"],
     });
 
-  const generated = gh(
-    "api",
-    "repos/{owner}/{repo}/releases/generate-notes",
-    "-f",
-    `tag_name=${nextRelease.gitTag}`,
-    "-f",
-    `previous_tag_name=${lastRelease.gitTag}`,
-    "--jq",
-    ".body",
-  ).trim();
+  const repoUrl = gh("repo", "view", "--json", "url", "--jq", ".url").trim();
   const changelog = gh(
     "release",
     "view",
@@ -44,13 +35,14 @@ export function success(
     "--jq",
     ".body",
   ).trim();
+  const link = `**Full Changelog**: ${repoUrl}/compare/${lastRelease.gitTag}...${nextRelease.gitTag}`;
 
   gh(
     "release",
     "edit",
     nextRelease.gitTag,
     "--notes",
-    `${changelog}\n\n---\n\n${generated}`,
+    `${changelog}\n\n${link}`,
   );
-  logger.log(`Added GitHub's generated notes to ${nextRelease.gitTag}`);
+  logger.log(`Added the full changelog link to ${nextRelease.gitTag}`);
 }

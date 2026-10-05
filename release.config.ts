@@ -87,7 +87,7 @@ const config: Options = {
     // A plugin file, not an npm dependency: referenced by path so Options.plugins' own PluginSpec type (string | [string, T]) is satisfied without a cast. See the plugin's own docstring for why this exists as local code rather than a package.
     "./scripts/move-major-tag.mts",
     // A plugin file, not an npm dependency, for the same reason. Runs after the tag move so the release it edits points at the moved tag.
-    "./scripts/enrich-release-notes.mts",
+    "./scripts/add-compare-link.mts",
     "./scripts/sync-major-release.mts",
   ],
 };
