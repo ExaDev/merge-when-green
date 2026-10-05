@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Merges each open, non-draft pull request that carries $LABEL, has $HEAD_SHA at its head, has no unresolved review thread, and whose $REQUIRED_CHECK check run succeeded on $HEAD_SHA.
 # Inputs (environment): GH_TOKEN, REPO, HEAD_SHA, LABEL, REQUIRED_CHECK, MERGE_METHOD, and either MERGE_TOKEN (rebase, squash or merge, through the API) or SSH_KEY (fast-forward, a push of the head commit to the base branch over SSH).
-# A fast-forward push fails when the base branch has moved on, so a pull request that is behind is left for its owner to update rather than rewritten.
+# A fast-forward push fails when the base branch has moved on. A pull request that is behind is then left alone, unless UPDATE_BEHIND is true: its head branch is rebased onto the base and pushed back (never for a fork, whose branch the key cannot push to), which starts CI on the new head, and a later run merges it.
 set -euo pipefail
 
 case "$MERGE_METHOD" in
@@ -39,7 +39,7 @@ if [ "$passed" = "0" ]; then
 fi
 
 for number in $pulls; do
-  pr=$(gh pr view "$number" --repo "$REPO" --json headRefOid,isDraft,labels,baseRefName)
+  pr=$(gh pr view "$number" --repo "$REPO" --json headRefOid,headRefName,isCrossRepository,isDraft,labels,baseRefName)
   if [ "$(jq -r '.headRefOid' <<<"$pr")" != "$HEAD_SHA" ]; then
     echo "#$number has moved on from $HEAD_SHA; its own CI run decides."
     continue
@@ -74,7 +74,22 @@ for number in $pulls; do
     git -C "$work" init -q
     git -C "$work" fetch -q "$remote" "refs/pull/$number/head"
     if ! git -C "$work" push -q "$remote" "${HEAD_SHA}:refs/heads/$base"; then
-      echo "#$number can't be fast-forwarded onto $base; it needs updating first."
+      if [ "${UPDATE_BEHIND-}" != true ]; then
+        echo "#$number can't be fast-forwarded onto $base; it needs updating first."
+      elif [ "$(jq -r '.isCrossRepository' <<<"$pr")" = "true" ]; then
+        echo "#$number is behind $base but comes from a fork, so its branch can't be updated."
+      else
+        head_ref=$(jq -r '.headRefName' <<<"$pr")
+        git -C "$work" fetch -q "$remote" "refs/heads/$base:refs/remotes/base"
+        git -C "$work" checkout -q --detach "$HEAD_SHA"
+        if git -C "$work" -c user.name=github-actions[bot] -c user.email=github-actions[bot]@users.noreply.github.com rebase -q refs/remotes/base; then
+          git -C "$work" push -q "$remote" "HEAD:refs/heads/$head_ref" "--force-with-lease=refs/heads/$head_ref:$HEAD_SHA"
+          echo "#$number was behind $base; rebased it, and CI will run on the new head."
+        else
+          git -C "$work" rebase --abort
+          echo "#$number is behind $base and doesn't rebase cleanly; it needs updating by hand."
+        fi
+      fi
       rm -rf "$work"
       continue
     fi

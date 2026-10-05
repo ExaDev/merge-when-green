@@ -13,7 +13,7 @@ case "$1 $2" in
   "api repos/"*"/pulls") if [ -n "${OPEN_PULLS-7}" ]; then echo "${OPEN_PULLS-7}"; fi ;;
   "api repos/"*"/check-runs") echo "${CHECK_PASSED-1}" ;;
   "api graphql") echo "${UNRESOLVED-0}" ;;
-  "pr view") printf '{"headRefOid":"%s","isDraft":%s,"baseRefName":"main","labels":[{"name":"%s"}]}\n' "${PR_HEAD-abc}" "${PR_DRAFT-false}" "${PR_LABEL-automerge}" ;;
+  "pr view") printf '{"headRefOid":"%s","isDraft":%s,"baseRefName":"main","headRefName":"topic","isCrossRepository":%s,"labels":[{"name":"%s"}]}\n' "${PR_HEAD-abc}" "${PR_DRAFT-false}" "${PR_FORK-false}" "${PR_LABEL-automerge}" ;;
   "pr merge") echo "$*" >>"$MERGE_LOG" ;;
   *) echo "unexpected gh call: $*" >&2; exit 99 ;;
 esac
@@ -24,10 +24,17 @@ chmod +x "$work/bin/gh"
 cat >"$work/bin/git" <<'FAKE'
 #!/usr/bin/env bash
 shift 2 # -C <dir>
+while [ "$1" = -c ]; do shift 2; done
 case "$1" in
-  init | fetch) ;;
+  init | fetch | checkout) ;;
+  rebase)
+    if [ -n "${REBASE_FAILS-}" ] && [ "$2" != --abort ]; then exit 1; fi
+    ;;
   push)
-    if [ -n "${PUSH_FAILS-}" ]; then exit 1; fi
+    # A fast-forward onto the base fails when PUSH_FAILS is set; pushing the head branch back (the update) always works.
+    case "$*" in
+      *refs/heads/main) if [ -n "${PUSH_FAILS-}" ]; then exit 1; fi ;;
+    esac
     echo "push ${*:3}" >>"$MERGE_LOG"
     ;;
   *) echo "unexpected git call: $*" >&2; exit 99 ;;
@@ -72,6 +79,12 @@ grep -q -- "--rebase --match-head-commit abc" "$work/merges" || { echo "FAIL reb
 run "fast-forward pushes the head commit to the base branch" merged MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN=
 grep -q "push git@github.com:o/r.git abc:refs/heads/main" "$work/merges" || { echo "FAIL fast-forward refspec: $(cat "$work/merges")"; failures=$((failures + 1)); }
 run "fast-forward onto a moved base is left alone" skipped MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN= PUSH_FAILS=1
+
+run "behind: update-behind rebases and pushes the head branch" merged MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN= PUSH_FAILS=1 UPDATE_BEHIND=true
+grep -q "push git@github.com:o/r.git HEAD:refs/heads/topic --force-with-lease=refs/heads/topic:abc" "$work/merges" || { echo "FAIL update push: $(cat "$work/merges")"; failures=$((failures + 1)); }
+run "behind: a fork is not updated" skipped MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN= PUSH_FAILS=1 UPDATE_BEHIND=true PR_FORK=true
+run "behind: a conflicting rebase pushes nothing" skipped MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN= PUSH_FAILS=1 UPDATE_BEHIND=true REBASE_FAILS=1
+run "behind: left alone without update-behind" skipped MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN= PUSH_FAILS=1
 
 for missing in "MERGE_METHOD=fast-forward MERGE_TOKEN=w SSH_KEY=" "MERGE_METHOD=rebase MERGE_TOKEN= SSH_KEY=k"; do
   # shellcheck disable=SC2086 # the pairs are plain VAR=value words.

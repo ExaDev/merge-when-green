@@ -30,5 +30,6 @@ jobs:
       - uses: ./
         with:
           merge-method: fast-forward
+          update-behind: true
           ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
           required-check: Required Checks

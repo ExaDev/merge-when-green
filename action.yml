@@ -22,6 +22,9 @@ inputs:
   merge-method:
     description: rebase, squash, merge (all through the API, with merge-token) or fast-forward (a push over SSH, with ssh-key; only a pull request already up to date with its base is merged).
     default: rebase
+  update-behind:
+    description: For fast-forward, rebase a pull request that is behind its base onto it and push the result to its branch (never a fork's), instead of leaving it. CI then runs on the new head and a later run merges it.
+    default: "false"
   head-sha:
     description: Commit to act on. Defaults to the head of the workflow_run or pull_request_target event.
     default: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
@@ -39,4 +42,5 @@ runs:
         LABEL: ${{ inputs.label }}
         REQUIRED_CHECK: ${{ inputs.required-check }}
         MERGE_METHOD: ${{ inputs.merge-method }}
+        UPDATE_BEHIND: ${{ inputs.update-behind }}
       run: ${{ github.action_path }}/merge.sh
