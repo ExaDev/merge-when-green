@@ -44,17 +44,19 @@ Do not add a checkout step. Running no pull request code is what makes the `pull
 
 ## Inputs
 
-| Input | Default | Meaning |
-|-------|---------|---------|
-| `merge-token` | required | Token that performs the merge. Use a personal access token or app token rather than `GITHUB_TOKEN` when the merge should start workflows (a release on `main`), because GitHub does not start workflows from pushes made with `GITHUB_TOKEN`. It needs permission to merge pull requests. |
-| `required-check` | required | Name of the check run that must have succeeded on the head commit. Point it at one aggregate job that `needs` every other job and runs with `if: always()`, so it passes only when they all did. |
-| `label` | `automerge` | Label that opts a pull request in. |
-| `merge-method` | `rebase` | `rebase`, `squash` or `merge`. |
-| `read-token` | `github.token` | Token used to read pull requests, checks and review threads. |
-| `head-sha` | event's head commit | Commit to act on. |
+| Input            | Default             | Meaning                                                                                                                                                                                                                                                                                   |
+| ---------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `merge-token`    | required            | Token that performs the merge. Use a personal access token or app token rather than `GITHUB_TOKEN` when the merge should start workflows (a release on `main`), because GitHub does not start workflows from pushes made with `GITHUB_TOKEN`. It needs permission to merge pull requests. |
+| `required-check` | required            | Name of the check run that must have succeeded on the head commit. Point it at one aggregate job that `needs` every other job and runs with `if: always()`, so it passes only when they all did.                                                                                          |
+| `label`          | `automerge`         | Label that opts a pull request in.                                                                                                                                                                                                                                                        |
+| `merge-method`   | `rebase`            | `rebase`, `squash` or `merge`.                                                                                                                                                                                                                                                            |
+| `read-token`     | `github.token`      | Token used to read pull requests, checks and review threads.                                                                                                                                                                                                                              |
+| `head-sha`       | event's head commit | Commit to act on.                                                                                                                                                                                                                                                                         |
 
 A pull request with more than one page of review threads counts as having an unresolved one.
 
 ## Development
 
-`test/merge.test.sh` runs `merge.sh` against a fake `gh`; CI also runs `shellcheck`.
+`npm test` runs `merge.sh` against a fake `gh`, and `npm run shellcheck` lints the scripts. CI also runs commitlint, actionlint, typecheck, lint and format checks, aggregated into one `Required Checks` job.
+
+Releases are made by semantic-release from conventional commits on `main`: it tags the version, publishes the GitHub Release, updates `CHANGELOG.md` and moves the major tag (`v1`) that consumers pin to.
