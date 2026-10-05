@@ -70,6 +70,8 @@ A pull request with more than one page of review threads counts as having an unr
 
 ## Development
 
+This repository merges its own labelled pull requests with the action, using `fast-forward` and the release deploy key (`.github/workflows/merge-when-green.yml`).
+
 `npm test` runs `merge.sh` against a fake `gh`, and `npm run shellcheck` lints the scripts. CI also runs commitlint, actionlint, typecheck, lint and format checks, aggregated into one `Required Checks` job.
 
 Releases are made by semantic-release from conventional commits on `main`: it tags the version, publishes the GitHub Release, updates `CHANGELOG.md` and moves the major tag (`v1`) that consumers pin to.
