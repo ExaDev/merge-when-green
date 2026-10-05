@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/ExaDev/merge-when-green/compare/v1.1.2...v1.2.0) (2026-10-05)
+
+### Features
+
+- rebase a pull request that is behind its base instead of skipping it ([afc0033](https://github.com/ExaDev/merge-when-green/commit/afc00331b549f7c5a12a997a243dba8782886256))
+
 ## [1.1.2](https://github.com/ExaDev/merge-when-green/compare/v1.1.1...v1.1.2) (2026-10-05)
 
 ### Bug Fixes
