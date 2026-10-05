@@ -28,6 +28,8 @@ export const commitTypes: readonly CommitType[] = [
  */
 const config: Options = {
   branches: ["main"],
+  // SSH, so the release commit and tags are pushed with the deploy key the checkout configured rather than over https with a token that cannot bypass branch protection.
+  repositoryUrl: "git@github.com:ExaDev/merge-when-green.git",
   plugins: [
     [
       "@semantic-release/commit-analyzer",
