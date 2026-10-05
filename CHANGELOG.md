@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/ExaDev/merge-when-green/compare/v1.0.1...v1.1.0) (2026-10-05)
+
+### Features
+
+- merge by fast-forward push with a deploy key ([20389f6](https://github.com/ExaDev/merge-when-green/commit/20389f6e254cefcac507353141f7bda37877ff5a))
+
 ## [1.0.1](https://github.com/ExaDev/merge-when-green/compare/v1.0.0...v1.0.1) (2026-10-05)
 
 ## 1.0.0 (2026-10-05)
