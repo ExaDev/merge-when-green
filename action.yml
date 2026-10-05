@@ -1,5 +1,5 @@
 name: Merge when green
-description: Merge labelled pull requests once a required check has passed on their head commit, for repositories where GitHub's own auto-merge and required status checks are unavailable.
+description: Merge labelled pull requests once a required check passes, where GitHub's own auto-merge is unavailable.
 author: ExaDev
 branding:
   icon: git-merge
