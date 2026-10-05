@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/ExaDev/merge-when-green/compare/v1.1.1...v1.1.2) (2026-10-05)
+
+### Bug Fixes
+
+- shorten the action description to fit the Marketplace limit ([5b4ec5c](https://github.com/ExaDev/merge-when-green/commit/5b4ec5cfefb411325f4280f8984543fee2abbb94))
+
 ## [1.1.1](https://github.com/ExaDev/merge-when-green/compare/v1.1.0...v1.1.1) (2026-10-05)
 
 ## [1.1.0](https://github.com/ExaDev/merge-when-green/compare/v1.0.1...v1.1.0) (2026-10-05)
