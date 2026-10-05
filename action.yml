@@ -1,0 +1,40 @@
+name: Merge when green
+description: Merge labelled pull requests once a required check has passed on their head commit, for repositories where GitHub's own auto-merge and required status checks are unavailable.
+author: ExaDev
+branding:
+  icon: git-merge
+  color: green
+
+inputs:
+  merge-token:
+    description: Token used to merge. A token other than the workflow's GITHUB_TOKEN is needed when the merge must start further workflows, which GitHub does not do for pushes made with GITHUB_TOKEN.
+    required: true
+  read-token:
+    description: Token used to read pull requests, checks and review threads.
+    default: ${{ github.token }}
+  label:
+    description: Label that opts a pull request in.
+    default: automerge
+  required-check:
+    description: Name of the check run that must have succeeded on the pull request's head commit. Point it at one aggregate job that needs every other job.
+    required: true
+  merge-method:
+    description: rebase, squash or merge.
+    default: rebase
+  head-sha:
+    description: Commit to act on. Defaults to the head of the workflow_run or pull_request_target event.
+    default: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.read-token }}
+        MERGE_TOKEN: ${{ inputs.merge-token }}
+        REPO: ${{ github.repository }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        LABEL: ${{ inputs.label }}
+        REQUIRED_CHECK: ${{ inputs.required-check }}
+        MERGE_METHOD: ${{ inputs.merge-method }}
+      run: ${{ github.action_path }}/merge.sh
