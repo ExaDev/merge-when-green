@@ -1,4 +1,7 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { changelogForMajor } from "./changelog-for-major.mts";
 import type { SuccessContext } from "semantic-release";
 
 /** semantic-release's own SuccessContext types `logger` as `Signale<...>`, but the `signale` package ships no type declarations of its own, so it surfaces as an unsafe `any` wherever `context.logger` is used. Overriding just that one field with the narrow shape this file calls avoids relying on the broken upstream type. */
@@ -7,9 +10,9 @@ type TypedSuccessContext = Omit<SuccessContext, "logger"> & {
 };
 
 /**
- * semantic-release plugin, referenced by path from release.config.ts. Keeps one GitHub Release, named after the moving major tag (v1, v2, ...), pointing at that tag and carrying the latest release's finished notes (changelog entry and GitHub's generated notes, as enrich-release-notes.mts left them). The Marketplace listing is switched on per release, by hand, in the web UI; this release is the one ticked there, so it is the single listing that follows every new version once the tag moves. It is never marked Latest, so the exact version's release stays the repository's latest.
+ * semantic-release plugin, referenced by path from release.config.ts. Keeps one GitHub Release, named after the moving major tag (v1, v2, ...), pointing at that tag and carrying the changelog of the whole major version (every CHANGELOG.md entry for it, newest first). The Marketplace listing is switched on per release, by hand, in the web UI; this release is the one ticked there, so it is the single listing that follows every new version once the tag moves. It is never marked Latest, so the exact version's release stays the repository's latest.
  *
- * Runs in the `success` step after move-major-tag.mts, which has already pushed the moved tag, and after enrich-release-notes.mts, which has already finished the versioned release's notes.
+ * Runs in the `success` step after move-major-tag.mts, which has already pushed the moved tag and after `@semantic-release/changelog`, which has already written this release's entry to CHANGELOG.md in the working tree.
  */
 export function success(
   _pluginConfig: unknown,
@@ -23,12 +26,14 @@ export function success(
     );
   }
   const major = `v${majorVersionSegment}`;
-  const body = execFileSync(
-    "gh",
-    ["release", "view", nextRelease.gitTag, "--json", "body", "--jq", ".body"],
-    { cwd, env, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] },
-  ).trim();
-  const notes = `Moving release for ${major}, currently ${nextRelease.gitTag}.\n\n${body}`;
+  const entries = changelogForMajor(
+    readFileSync(join(cwd ?? process.cwd(), "CHANGELOG.md"), "utf8"),
+    Number(majorVersionSegment),
+  );
+  const notes = [
+    `Moving release for ${major}, currently ${nextRelease.gitTag}. Every release of this major version:`,
+    ...entries,
+  ].join("\n\n");
 
   const gh = (...args: readonly string[]): Buffer =>
     execFileSync("gh", args, {
