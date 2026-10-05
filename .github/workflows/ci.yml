@@ -97,7 +97,7 @@ jobs:
       - run: npm ci
       - run: npx turbo run format:check
 
-  # The action's own script, run against a fake gh, plus shellcheck, and the release plugins' unit tests. shellcheck is preinstalled on GitHub-hosted Ubuntu runners.
+  # The release plugins' unit tests.
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -109,8 +109,6 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
-      - run: shellcheck merge.sh test/merge.test.sh
-      - run: test/merge.test.sh
       - run: node --test scripts/*.test.mts
 
   # A single stable branch-protection target aggregating every job that runs on every pull request, so the required status check doesn't need updating in GitHub's branch protection settings whenever a job is added, renamed, or split -- only this job's own needs: list changes, in the same commit as whatever job it now covers. if: always() so this job still runs (and can fail) even when one of its dependencies failed outright, rather than being skipped itself; a dependency that never ran for this event (commitlint on a plain push to main) reports "skipped", not "failure" or "cancelled", so it doesn't block release below.

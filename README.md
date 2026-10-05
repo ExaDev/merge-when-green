@@ -1,6 +1,6 @@
 # merge-when-green
 
-Merges a pull request once a named check has passed on its head commit, without relying on GitHub's own auto-merge or branch protection.
+Merges a pull request once a named check has passed on its head commit, without relying on GitHub's own auto-merge or branch protection. It is [`merge-when`](https://github.com/ExaDev/merge-when) with the conditions fixed to "labelled, not a draft, no unresolved review thread and the named check green"; use `merge-when` directly to choose other conditions, such as approvals or a particular author.
 
 ## When to use this
 
@@ -80,8 +80,6 @@ A pull request with more than one page of review threads counts as having an unr
 
 ## Development
 
-This repository merges its own labelled pull requests with the action, using `fast-forward` and the release deploy key (`.github/workflows/merge-when-green.yml`).
-
-`npm test` runs `merge.sh` against a fake `gh`, and `npm run shellcheck` lints the scripts. CI also runs commitlint, actionlint, typecheck, lint and format checks, aggregated into one `Required Checks` job.
+This repository merges its own labelled pull requests with the action, using `fast-forward` and the release deploy key (`.github/workflows/merge-when-green.yml`). The merging itself is done by `merge-when`, which holds the script and its tests; `npm test` here runs the unit tests for the release plugins. CI also runs commitlint, actionlint, typecheck, lint and format checks, aggregated into one `Required Checks` job.
 
 Releases are made by semantic-release from conventional commits on `main`: it tags the version, publishes the GitHub Release, updates `CHANGELOG.md` and moves the major tag (`v1`) that consumers pin to.

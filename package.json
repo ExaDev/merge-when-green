@@ -11,8 +11,7 @@
   "scripts": {
     "prepare": "husky",
     "typecheck": "tsc",
-    "test": "test/merge.test.sh && node --test scripts/*.test.mts",
-    "shellcheck": "shellcheck merge.sh test/merge.test.sh",
+    "test": "node --test scripts/*.test.mts",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
