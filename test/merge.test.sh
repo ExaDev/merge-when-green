@@ -13,12 +13,27 @@ case "$1 $2" in
   "api repos/"*"/pulls") if [ -n "${OPEN_PULLS-7}" ]; then echo "${OPEN_PULLS-7}"; fi ;;
   "api repos/"*"/check-runs") echo "${CHECK_PASSED-1}" ;;
   "api graphql") echo "${UNRESOLVED-0}" ;;
-  "pr view") printf '{"headRefOid":"%s","isDraft":%s,"labels":[{"name":"%s"}]}\n' "${PR_HEAD-abc}" "${PR_DRAFT-false}" "${PR_LABEL-automerge}" ;;
+  "pr view") printf '{"headRefOid":"%s","isDraft":%s,"baseRefName":"main","labels":[{"name":"%s"}]}\n' "${PR_HEAD-abc}" "${PR_DRAFT-false}" "${PR_LABEL-automerge}" ;;
   "pr merge") echo "$*" >>"$MERGE_LOG" ;;
   *) echo "unexpected gh call: $*" >&2; exit 99 ;;
 esac
 FAKE
 chmod +x "$work/bin/gh"
+
+# Records fast-forward pushes in the merge log, and fails them when PUSH_FAILS is set, as a push onto a moved base branch would.
+cat >"$work/bin/git" <<'FAKE'
+#!/usr/bin/env bash
+shift 2 # -C <dir>
+case "$1" in
+  init | fetch) ;;
+  push)
+    if [ -n "${PUSH_FAILS-}" ]; then exit 1; fi
+    echo "push ${*:3}" >>"$MERGE_LOG"
+    ;;
+  *) echo "unexpected git call: $*" >&2; exit 99 ;;
+esac
+FAKE
+chmod +x "$work/bin/git"
 
 failures=0
 # run <name> <expect: merged|skipped> [VAR=value ...]
@@ -53,6 +68,20 @@ run "squash method flag" merged MERGE_METHOD=squash
 grep -q -- "--squash --match-head-commit abc" "$work/merges" || { echo "FAIL squash flags: $(cat "$work/merges")"; failures=$((failures + 1)); }
 run "rebase method flag" merged
 grep -q -- "--rebase --match-head-commit abc" "$work/merges" || { echo "FAIL rebase flags: $(cat "$work/merges")"; failures=$((failures + 1)); }
+
+run "fast-forward pushes the head commit to the base branch" merged MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN=
+grep -q "push git@github.com:o/r.git abc:refs/heads/main" "$work/merges" || { echo "FAIL fast-forward refspec: $(cat "$work/merges")"; failures=$((failures + 1)); }
+run "fast-forward onto a moved base is left alone" skipped MERGE_METHOD=fast-forward SSH_KEY=key MERGE_TOKEN= PUSH_FAILS=1
+
+for missing in "MERGE_METHOD=fast-forward MERGE_TOKEN=w SSH_KEY=" "MERGE_METHOD=rebase MERGE_TOKEN= SSH_KEY=k"; do
+  # shellcheck disable=SC2086 # the pairs are plain VAR=value words.
+  if env PATH="$work/bin:$PATH" MERGE_LOG="$work/merges" GH_TOKEN=r REPO=o/r HEAD_SHA=abc LABEL=automerge REQUIRED_CHECK=x $missing \
+    "$root/merge.sh" >/dev/null 2>&1; then
+    echo "FAIL accepted a method without its credential: $missing"; failures=$((failures + 1))
+  else
+    echo "ok   method without its credential rejected"
+  fi
+done
 
 if env PATH="$work/bin:$PATH" MERGE_LOG="$work/merges" GH_TOKEN=r MERGE_TOKEN=w REPO=o/r HEAD_SHA=abc LABEL=automerge \
   REQUIRED_CHECK=x MERGE_METHOD=ff "$root/merge.sh" >/dev/null 2>&1; then

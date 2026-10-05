@@ -53,6 +53,18 @@ Do not add a checkout step. Running no pull request code is what makes the `pull
 | `read-token`     | `github.token`      | Token used to read pull requests, checks and review threads.                                                                                                                                                                                                                              |
 | `head-sha`       | event's head commit | Commit to act on.                                                                                                                                                                                                                                                                         |
 
+### Merging with a deploy key
+
+A deploy key is an SSH key, so it cannot call the merge API. With `merge-method: fast-forward` the action instead fetches the pull request's head and pushes that exact commit to the base branch over SSH, which GitHub records as the pull request being merged, and which starts workflows (unlike a push made with `GITHUB_TOKEN`). The deploy key needs write access, and must be a bypass actor if the base branch is protected. Because it is a push of existing commits, a pull request that is behind its base is not merged (the push is rejected) and is left for its author to update; `rebase` is the method that handles that case.
+
+```yaml
+- uses: ExaDev/merge-when-green@v1
+  with:
+    merge-method: fast-forward
+    ssh-key: ${{ secrets.MERGE_DEPLOY_KEY }}
+    required-check: Required checks
+```
+
 A pull request with more than one page of review threads counts as having an unresolved one.
 
 ## Development
