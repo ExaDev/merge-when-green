@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/ExaDev/merge-when-green/compare/v1.3.0...v1.4.0) (2026-10-05)
+
+### Features
+
+- add GitHub's generated notes to each release below the changelog entry ([8f59caf](https://github.com/ExaDev/merge-when-green/commit/8f59caf55049146cf5e22f6f1105d3a4e9a099c5))
+
 ## [1.3.0](https://github.com/ExaDev/merge-when-green/compare/v1.2.0...v1.3.0) (2026-10-05)
 
 ### Features
