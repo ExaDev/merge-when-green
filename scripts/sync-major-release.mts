@@ -7,9 +7,9 @@ type TypedSuccessContext = Omit<SuccessContext, "logger"> & {
 };
 
 /**
- * semantic-release plugin, referenced by path from release.config.ts. Keeps one GitHub Release, named after the moving major tag (v1, v2, ...), pointing at that tag and carrying the latest release's notes. The Marketplace listing is switched on per release, by hand, in the web UI; this release is the one ticked there, so it is the single listing that follows every new version once the tag moves. It is never marked Latest, so the exact version's release stays the repository's latest.
+ * semantic-release plugin, referenced by path from release.config.ts. Keeps one GitHub Release, named after the moving major tag (v1, v2, ...), pointing at that tag and carrying the latest release's finished notes (changelog entry and GitHub's generated notes, as enrich-release-notes.mts left them). The Marketplace listing is switched on per release, by hand, in the web UI; this release is the one ticked there, so it is the single listing that follows every new version once the tag moves. It is never marked Latest, so the exact version's release stays the repository's latest.
  *
- * Runs in the `success` step after move-major-tag.mts, which has already pushed the moved tag.
+ * Runs in the `success` step after move-major-tag.mts, which has already pushed the moved tag, and after enrich-release-notes.mts, which has already finished the versioned release's notes.
  */
 export function success(
   _pluginConfig: unknown,
@@ -23,7 +23,12 @@ export function success(
     );
   }
   const major = `v${majorVersionSegment}`;
-  const notes = `Moving release for ${major}, currently ${nextRelease.gitTag}.\n\n${nextRelease.notes ?? ""}`;
+  const body = execFileSync(
+    "gh",
+    ["release", "view", nextRelease.gitTag, "--json", "body", "--jq", ".body"],
+    { cwd, env, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] },
+  ).trim();
+  const notes = `Moving release for ${major}, currently ${nextRelease.gitTag}.\n\n${body}`;
 
   const gh = (...args: readonly string[]): Buffer =>
     execFileSync("gh", args, {
