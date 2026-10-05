@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/ExaDev/merge-when-green/compare/v1.4.0...v1.5.0) (2026-10-05)
+
+### Features
+
+- the moving major release carries the whole changelog for that major version ([3d5b000](https://github.com/ExaDev/merge-when-green/commit/3d5b0003b58f02ecee0c8e35cc19d240d2b0998f))
+
 ## [1.4.0](https://github.com/ExaDev/merge-when-green/compare/v1.3.0...v1.4.0) (2026-10-05)
 
 ### Features
