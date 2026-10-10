@@ -51,6 +51,8 @@ jobs:
 
 Do not add a checkout step. Running no pull request code is what makes the `pull_request_target` trigger safe.
 
+A draft is never merged. To have labelled drafts marked ready once the check passes, and then merged, run [`ready-when-green`](https://github.com/ExaDev/ready-when-green) in a workflow beside this one: the `ready_for_review` event it causes starts this workflow again, which merges the pull request.
+
 ## Inputs
 
 | Input            | Default             | Meaning                                                                                                                                                                                                                                                                                                                                                          |
