@@ -1,3 +1,13 @@
+## [1.6.5](https://github.com/ExaDev/merge-when-green/compare/v1.6.4...v1.6.5) (2026-10-29)
+
+### Bug Fixes
+
+- list every commit type in the release notes ([4cc266c](https://github.com/ExaDev/merge-when-green/commit/4cc266cddf2a40cff8eee18246420002e83f1bea))
+
+### Documentation
+
+- list the commits behind each release that had an empty changelog entry ([4d85878](https://github.com/ExaDev/merge-when-green/commit/4d85878c75014cbd56ff54788e20b1dc2115f467))
+
 ## [1.6.4](https://github.com/ExaDev/merge-when-green/compare/v1.6.3...v1.6.4) (2026-10-10)
 
 ### Documentation
