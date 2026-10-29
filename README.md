@@ -1,5 +1,7 @@
 # merge-when-green
 
+[![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)](https://github.com/ExaDev/merge-when-green) [![Release](https://img.shields.io/github/v/release/ExaDev/merge-when-green)](https://github.com/ExaDev/merge-when-green/releases/latest) [![CI](https://img.shields.io/github/actions/workflow/status/ExaDev/merge-when-green/ci.yml?branch=main)](https://github.com/ExaDev/merge-when-green/actions)
+
 Merges a pull request once a named check has passed on its head commit, without relying on GitHub's own auto-merge or branch protection. It is [`merge-when`](https://github.com/ExaDev/merge-when) with the conditions fixed to "labelled, not a draft, no unresolved review thread and the named check green"; use `merge-when` directly to choose other conditions, such as approvals or a particular author.
 
 ## When to use this
