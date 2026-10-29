@@ -1,3 +1,9 @@
+## [1.6.6](https://github.com/ExaDev/merge-when-green/compare/v1.6.5...v1.6.6) (2026-10-29)
+
+### Documentation
+
+- add the standard badge row to the README ([a456b74](https://github.com/ExaDev/merge-when-green/commit/a456b74032d7f4d038fdd426af1f27fba65ccbbd))
+
 ## [1.6.5](https://github.com/ExaDev/merge-when-green/compare/v1.6.4...v1.6.5) (2026-10-29)
 
 ### Bug Fixes
