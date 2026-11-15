@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/ExaDev/merge-when-green/compare/v1.6.6...v1.7.0) (2026-11-15)
+
+### Features
+
+- pass allow-merge-commits through to merge-when ([96065f8](https://github.com/ExaDev/merge-when-green/commit/96065f837d8af93c9f0ede04a0c74a5eba02b88f))
+
 ## [1.6.6](https://github.com/ExaDev/merge-when-green/compare/v1.6.5...v1.6.6) (2026-10-29)
 
 ### Documentation
