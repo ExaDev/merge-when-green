@@ -26,6 +26,9 @@ inputs:
   update-behind:
     description: For fast-forward, rebase a pull request that is behind its base onto it and push the result to its branch (never a fork's).
     default: "false"
+  allow-merge-commits:
+    description: For fast-forward, merge a pull request that holds merge commits, which puts them on the base branch, instead of refusing it. With update-behind, such a pull request is brought up to date by merging the base into it, since a rebase would drop its merge commits.
+    default: "false"
   read-token:
     description: Token used to read pull requests, checks and review threads.
     default: ${{ github.token }}
@@ -49,5 +52,6 @@ runs:
         app-private-key: ${{ inputs.app-private-key }}
         ssh-key: ${{ inputs.ssh-key }}
         update-behind: ${{ inputs.update-behind }}
+        allow-merge-commits: ${{ inputs.allow-merge-commits }}
         read-token: ${{ inputs.read-token }}
         head-sha: ${{ inputs.head-sha }}
