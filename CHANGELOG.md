@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/ExaDev/merge-when-green/compare/v1.7.0...v1.8.0) (2026-11-17)
+
+### Features
+
+- pass rerun-lost-runners through to merge-when ([565a6aa](https://github.com/ExaDev/merge-when-green/commit/565a6aa5a26340dffc3b7ce1a9db1d2ab8580fbe))
+
 ## [1.7.0](https://github.com/ExaDev/merge-when-green/compare/v1.6.6...v1.7.0) (2026-11-15)
 
 ### Features
